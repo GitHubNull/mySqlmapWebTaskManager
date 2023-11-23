@@ -137,14 +137,14 @@
                                     @confirm="killTask(record.task_id)">
                                     <a-tooltip placement="topLeft" title="Click to kill this task!" arrow-point-at-center
                                         color="pink" :mouseEnterDelay="1.5">
-                                        <a-button :icon="h(DeleteOutlined)" type="primary" danger>Kill</a-button>
+                                        <a-button :icon="h(CloseCircleOutlined)" type="primary" danger>Kill</a-button>
                                     </a-tooltip>
                                 </a-popconfirm>
                             </template>
                             <template v-else>
                                 <a-tooltip placement="topLeft" title="Click to kill this task!" arrow-point-at-center
                                     color="pink" :mouseEnterDelay="1.5">
-                                    <a-button :icon="h(DeleteOutlined)" type="primary" danger disabled>Kill</a-button>
+                                    <a-button :icon="h(CloseCircleOutlined)" type="primary" danger disabled>Kill</a-button>
                                 </a-tooltip>
                             </template>
 
@@ -171,10 +171,7 @@
             </a-table>
         </a-layout-content>
         <a-layout-footer style="text-align: center">
-            <a-card :bordered="false">
-                <p>MySqlmap api web ui to manager scan tasks.</p>
-            </a-card>
-
+            <p>MySqlmap api web ui to manager scan tasks.</p>
         </a-layout-footer>
     </a-layout>
 
@@ -184,14 +181,13 @@
 <script setup>
 import { getTaskList, stopTaskApi, killTaskApi, deleteTaskApi, flushApi, startTaskApi } from '../api';
 import { useRouter } from 'vue-router';
-import { ref, computed, reactive, onBeforeMount, h } from 'vue';
+import { ref, onBeforeMount, h } from 'vue';
 import {
     SearchOutlined,
     ReloadOutlined,
-    StopOutlined,
-    CloseOutlined,
     DeleteOutlined,
     PauseCircleOutlined,
+    CloseCircleOutlined,
     PlayCircleOutlined,
     QuestionCircleOutlined,
 } from '@ant-design/icons-vue';
