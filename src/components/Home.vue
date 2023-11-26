@@ -32,7 +32,12 @@
                     </a-tooltip>
                 </a-popconfirm>
 
-
+                <div>
+                    <a-button :icon="h(InfoOutlined)" @click="showModal">Task status state</a-button>
+                    <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
+                        <a-image :src="taskStatusImageUrl" />
+                    </a-modal>
+                </div>
 
             </a-space>
 
@@ -189,9 +194,12 @@ import {
     PauseCircleOutlined,
     CloseCircleOutlined,
     PlayCircleOutlined,
+    InfoOutlined,
     QuestionCircleOutlined,
 } from '@ant-design/icons-vue';
 import { notification } from 'ant-design-vue';
+
+import taskStatusImageUrl from '/src/assets/task status.jpg'
 
 const name = ref('Home');
 const router = useRouter();
@@ -297,6 +305,14 @@ const goToErrorDetail = taskId => {
 
 const goToLogDetail = taskId => {
     router.push({ name: 'LogDetail', params: { taskId } });
+};
+
+const open = ref(false);
+const showModal = () => {
+    open.value = true;
+};
+const handleOk = e => {
+    open.value = false;
 };
 
 const goToPayloadDetails = taskId => {
