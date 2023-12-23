@@ -13,18 +13,18 @@
 
         <template #bodyCell="{ column, record }">
 
-          <template v-if="column.key === 'time'">
+          <template v-if="column.key === 'datetime'">
             <template v-if="record.level === 'INFO'">
-              <span style="color: #00a67c;">{{ record.time }}</span>
+              <span style="color: #00a67c;">{{ record.datetime }}</span>
             </template>
             <template v-else-if="record.level === 'WARNING'">
-              <span style="color: #f0ad4e;">{{ record.time }}</span>
+              <span style="color: #f0ad4e;">{{ record.datetime }}</span>
             </template>
             <template v-else-if="record.level === 'ERROR'">
-              <span style="color: #dd514c;">{{ record.time }}</span>
+              <span style="color: #dd514c;">{{ record.datetime }}</span>
             </template>
             <template v-else-if="record.level === 'CRITICAL'">
-              <span style="color: red;">{{ record.time }}</span>
+              <span style="color: red;">{{ record.datetime }}</span>
             </template>
           </template>
 
@@ -87,9 +87,9 @@ const columns = ref([
     key: 'index'
   },
   {
-    title: 'time',
-    dataIndex: 'time',
-    key: 'time'
+    title: 'datetime',
+    dataIndex: 'datetime',
+    key: 'datetime'
   },
   {
     title: 'level',
