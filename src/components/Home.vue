@@ -44,7 +44,7 @@
         </a-layout-header>
         <a-layout-content>
 
-            <a-table :columns="columns" :data-source="tasks" size="large">
+            <a-table :columns="columns" :data-source="tasks" size="medium" bordered>
 
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.dataIndex === 'start_datetime'">
@@ -53,9 +53,9 @@
                             <a-popconfirm ok-text="Yes" cancel-text="No">
                                 <template #title>
                                     <a-date-picker :show-time="{ format: 'HH:mm:ss' }" showTime format="YYYY-MM-DD HH:mm:ss"
-                                    @ok="date => change_start_datetime(record.task_id, date)" />
+                                        @ok="date => change_start_datetime(record.task_id, date)" />
                                 </template>
-                                <a-button :icon="h(ScheduleOutlined)" @click="show_start_datetime_picker = true">edit</a-button>
+                                <a-button :icon="h(ScheduleOutlined)">edit</a-button>
                             </a-popconfirm>
                         </a-space>
                     </template>
@@ -220,7 +220,15 @@ const router = useRouter();
 const { proxy } = getCurrentInstance()
 
 const [api, contextHolder] = notification.useNotification();
-const show_start_datetime_picker = ref(false);
+
+const TaskStatus = {
+    New: 'New',
+    Runnable: 'Runnable',
+    Running: 'Running',
+    Blocked: 'Blocked',
+    Terminated: 'Terminated',
+    Unknown: 'Unknown',
+};
 
 const columns = ref([
     {
@@ -229,23 +237,59 @@ const columns = ref([
     },
     {
         title: 'start datetime',
-        dataIndex: 'start_datetime'
+        dataIndex: 'start_datetime',
+        sorter: (a, b) => {
+            const dateA = a.start_datetime && isValidDate(a.start_datetime) ? new Date(a.start_datetime) : new Date(0);
+            const dateB = b.start_datetime && isValidDate(b.start_datetime) ? new Date(b.start_datetime) : new Date(0);
+            return dateA - dateB;
+        },
     },
     {
         title: 'task id',
-        dataIndex: 'task_id'
+        dataIndex: 'task_id',
+        sorter: (a, b) => a.status.localeCompare(b.status.status),
     },
     {
         title: 'errors',
-        dataIndex: 'errors'
+        dataIndex: 'errors',
+        sorter: (a, b) => a.errors - b.errors,
     },
     {
         title: 'logs',
-        dataIndex: 'logs'
+        dataIndex: 'logs',
+        sorter: (a, b) => a.logs - b.logs,
     },
     {
         title: 'status',
-        dataIndex: 'status'
+        dataIndex: 'status',
+        filters: [
+            {
+                text: "New",
+                value: TaskStatus.New
+            },
+            {
+                text: "Runnable",
+                value: TaskStatus.Runnable
+            },
+            {
+                text: "Running",
+                value: TaskStatus.Running
+            },
+            {
+                text: "Blocked",
+                value: TaskStatus.Blocked
+            },
+            {
+                text: "Terminated",
+                value: TaskStatus.Terminated
+            },
+            {
+                text: "Unknown",
+                value: TaskStatus.Unknown
+            }
+        ],
+        onFilter: (value, record) => record.injected === value,
+        sorter: (a, b) => a.status.localeCompare(b.status.status),
     },
     {
         title: 'injected',
@@ -261,12 +305,19 @@ const columns = ref([
             }
         ],
         onFilter: (value, record) => record.injected === value,
+        sorter: (a, b) => Number(a.injected) - Number(b.injected),
     },
     {
         title: 'Action',
         dataIndex: 'action'
     },
 ]);
+
+// 验证日期时间字符串的有效性
+function isValidDate(dateString) {
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date);
+}
 
 const tasks = ref([]);
 
@@ -275,14 +326,6 @@ const openNotification = (title, desc) => {
         message: title,
         description: desc
     });
-};
-
-var TaskStatus = {
-    New: 'New',
-    Runnable: 'Runnable',
-    Running: 'Running',
-    Blocked: 'Blocked',
-    Terminated: 'Terminated'
 };
 
 var TaskStatusColor = {
@@ -323,6 +366,8 @@ const goToErrorDetail = taskId => {
     router.push({ name: 'ErrorDetail', params: { taskId } });
 };
 
+
+
 const goToLogDetail = taskId => {
     router.push({ name: 'LogDetail', params: { taskId } });
 };
@@ -360,6 +405,7 @@ async function reloadTable() {
     // console.log(data);
     if (data.success) {
         tasks.value = data.tasks;
+        tasks.value.reverse();
     }
 }
 
