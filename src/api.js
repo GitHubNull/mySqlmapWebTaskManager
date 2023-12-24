@@ -55,12 +55,25 @@ export async function stopTaskApi(taskId) {
     console.error('Error:', error);
     throw error;
   }
-;
+  ;
 }
 
 export async function startTaskApi(taskId) {
   try {
     const response = await apiClient.get(`/scan/startBlocked/${taskId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+export async function updateTaskStartDateTimeApi(taskId, start_datetime) {
+  let post_data = {
+    start_datetime: start_datetime
+  };
+  try {
+    const response = await apiClient.post(`/scan/update_start_datetime/${taskId}`, post_data);
     return response.data;
   } catch (error) {
     console.error('Error:', error);
