@@ -34,7 +34,7 @@
 
                 <div>
                     <a-button :icon="h(InfoOutlined)" @click="showModal">Task status state</a-button>
-                    <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
+                    <a-modal v-model:open="open" title="Task status life cycle." @ok="handleOk">
                         <a-image :src="taskStatusImageUrl" />
                     </a-modal>
                 </div>
@@ -44,9 +44,22 @@
         </a-layout-header>
         <a-layout-content>
 
-            <a-table :columns="columns" :data-source="tasks">
+            <a-table :columns="columns" :data-source="tasks" size="large">
 
                 <template #bodyCell="{ column, record }">
+                    <template v-if="column.dataIndex === 'start_datetime'">
+                        <a-space>
+                            <a-tag color="blue">{{ record.start_datetime }}</a-tag>
+                            <a-popconfirm ok-text="Yes" cancel-text="No">
+                                <template #title>
+                                    <a-date-picker :show-time="{ format: 'HH:mm:ss' }" showTime format="YYYY-MM-DD HH:mm:ss"
+                                    @ok="date => change_start_datetime(record.task_id, date)" />
+                                </template>
+                                <a-button :icon="h(ScheduleOutlined)" @click="show_start_datetime_picker = true">edit</a-button>
+                            </a-popconfirm>
+                        </a-space>
+                    </template>
+
                     <template v-if="column.dataIndex === 'errors'">
                         <template v-if="record.errors.length > 0">
                             <a-tooltip placement="topLeft" title="Click to view errors." arrow-point-at-center color="blue"
@@ -184,9 +197,9 @@
 </template>
   
 <script setup>
-import { getTaskList, stopTaskApi, killTaskApi, deleteTaskApi, flushApi, startTaskApi } from '../api';
+import { getTaskList, stopTaskApi, killTaskApi, deleteTaskApi, flushApi, startTaskApi, updateTaskStartDateTimeApi } from '../api';
 import { useRouter } from 'vue-router';
-import { ref, onBeforeMount, h } from 'vue';
+import { ref, onBeforeMount, h, getCurrentInstance } from 'vue';
 import {
     SearchOutlined,
     ReloadOutlined,
@@ -194,6 +207,7 @@ import {
     PauseCircleOutlined,
     CloseCircleOutlined,
     PlayCircleOutlined,
+    ScheduleOutlined,
     InfoOutlined,
     QuestionCircleOutlined,
 } from '@ant-design/icons-vue';
@@ -203,13 +217,19 @@ import taskStatusImageUrl from '/src/assets/task status.jpg'
 
 const name = ref('Home');
 const router = useRouter();
+const { proxy } = getCurrentInstance()
 
 const [api, contextHolder] = notification.useNotification();
+const show_start_datetime_picker = ref(false);
 
 const columns = ref([
     {
         title: '#',
         dataIndex: 'index'
+    },
+    {
+        title: 'start datetime',
+        dataIndex: 'start_datetime'
     },
     {
         title: 'task id',
@@ -410,6 +430,23 @@ onBeforeMount(async () => {
     reloadTable();
 
 })
+
+async function change_start_datetime(taskId, date) {
+    // console.log('change_start_datetime');
+    // console.log(date);
+    // console.log(taskId);
+    let fmt_start_datetime = proxy.$dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+    // console.log(fmt_start_datetime);
+    const data = await updateTaskStartDateTimeApi(taskId, fmt_start_datetime)
+    if (data.success) {
+        // alert ('修改成功');
+        reloadTable();
+        openNotification('修改成功', '已修改任务开始时间')
+    } else {
+        // alert ('修改失败');
+        openNotification('修改失败', '任务开始时间修改失败');
+    }
+}
 
 </script>
 
