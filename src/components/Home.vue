@@ -233,7 +233,8 @@ const TaskStatus = {
 const columns = ref([
     {
         title: '#',
-        dataIndex: 'index'
+        dataIndex: 'index',
+        sorter: (a, b) => Number(a.index) - Number(b.index),
     },
     {
         title: 'start datetime',
